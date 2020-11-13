@@ -197,8 +197,6 @@ int32_t Usage()
 
 int main(int argc, char *argv[])
 {
-    //Link to the OpenMPI library
-    dlopen(OPENMPI_PATH, RTLD_NOW | RTLD_GLOBAL);
     int prov, rc;
     rc = MPI_Init_thread(&argc, &argv, MPI_THREAD_MULTIPLE, &prov);
     if (rc != MPI_SUCCESS) {

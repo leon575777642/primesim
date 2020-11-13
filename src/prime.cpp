@@ -31,6 +31,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "prime.h"
 #include "system.h"
+#include <cstring>
 
 using namespace std;
 

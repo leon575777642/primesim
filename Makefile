@@ -38,16 +38,18 @@ DEP_FILES := $(CXX_FILES:src/%.cpp=dep/%.d)
 O_FILES := $(filter-out obj/core_manager.o, $(filter-out obj/pin_prime.o, $(CXX_FILES:src/%.cpp=obj/%.o)))
 PIN_O_FILES := obj/pin_prime.o obj/pin_xml_parser.o obj/pin_core_manager.o
 
+CXX := mpicxx
 
 PIN_CXX_FLAGS := -Wall -Werror -Wno-unknown-pragmas  -O3 -fomit-frame-pointer \
            -DBIGARRAY_MULTIPLIER=1 -DUSING_XED  -fno-strict-aliasing \
            -D_GLIBCXX_USE_CXX11_ABI=0 -fabi-version=2 \
-           -I$(LIBXML2_PATH) -g3 -I$(PINPATH)/source/tools/Include \
+           -g3 -I$(PINPATH)/source/tools/Include \
            -I$(PINPATH)/source/tools/InstLib -I$(PINPATH)/extras/xed-intel64/include \
            -I$(PINPATH)/extras/components/include -I$(PINPATH)/source/include \
            -I$(PINPATH)/source/include/pin \
            -I$(PINPATH)/source/include/pin/gen \
            -I$(PINPATH)/source/include/gen -fno-stack-protector -DTARGET_IA32E -DHOST_IA32E \
+		   -I$(LIBXML2_PATH) \
            -fPIC -DTARGET_LINUX 
 
 PIN_LD_FLAGS :=  -Wl,--hash-style=sysv -shared -Wl,-Bsymbolic \
@@ -67,41 +69,41 @@ all: $(TOP_LEVEL_PROGRAM_NAME)
 
 
 obj/pin_prime.o: src/pin_prime.cpp dep/pin_prime.d
-	mpic++ -c $< -o $@ $(PIN_CXX_FLAGS) -D OPENMPI_PATH=$(OPENMPI_LIB_PATH)
+	$(CXX) -c $< -o $@ $(PIN_CXX_FLAGS)
 
 obj/pin_xml_parser.o: src/xml_parser.cpp dep/xml_parser.d
-	mpic++ -c $< -o $@ $(PIN_CXX_FLAGS)
+	$(CXX) -c $< -o $@ $(PIN_CXX_FLAGS)
 
 obj/pin_core_manager.o: src/core_manager.cpp dep/core_manager.d
-	mpic++ -c $< -o $@ $(PIN_CXX_FLAGS)
+	$(CXX) -c $< -o $@ $(PIN_CXX_FLAGS)
 
 
 obj/Graphite/%.o: src/Graphite/%.cpp dep/Graphite/%.d 
-	mpic++ -c $< -o $@ $(CXX_FLAGS)
+	$(CXX) -c $< -o $@ $(CXX_FLAGS)
 
 obj/%.o: src/%.cpp dep/%.d 
-	mpic++ -c $< -o $@ $(CXX_FLAGS)
+	$(CXX) -c $< -o $@ $(CXX_FLAGS)
 
 dep/pin_prime.d: src/pin_prime.cpp
-	mpic++ -MM $(PIN_CXX_FLAGS) -MT '$(patsubst src/%.cpp,obj/%.o,$<)' $< -MF $@
+	$(CXX) -MM $(PIN_CXX_FLAGS) -MT '$(patsubst src/%.cpp,obj/%.o,$<)' $< -MF $@
 
 
 dep/core_manager.d: src/core_manager.cpp
-	mpic++ -MM $(PIN_CXX_FLAGS) -MT '$(patsubst src/%.cpp,obj/%.o,$<)' $< -MF $@
+	$(CXX) -MM $(PIN_CXX_FLAGS) -MT '$(patsubst src/%.cpp,obj/%.o,$<)' $< -MF $@
 
 dep/Graphite/%.d: src/Graphite/%.cpp
-	mpic++ -MM $(CXX_FLAGS) -MT '$(patsubst src/Graphite/%.cpp,obj/Graphite/%.o,$<)' $< -MF $@
+	$(CXX) -MM $(CXX_FLAGS) -MT '$(patsubst src/Graphite/%.cpp,obj/Graphite/%.o,$<)' $< -MF $@
 
 
 dep/%.d: src/%.cpp
-	mpic++ -MM $(CXX_FLAGS) -MT '$(patsubst src/%.cpp,obj/%.o,$<)' $< -MF $@
+	$(CXX) -MM $(CXX_FLAGS) -MT '$(patsubst src/%.cpp,obj/%.o,$<)' $< -MF $@
 
 
 bin/prime: $(O_FILES)
-	mpic++ $^ -o $@ $(LD_FLAGS)
+	$(CXX) $^ -o $@ $(LD_FLAGS)
 
 bin/prime.so: $(PIN_O_FILES)
-	mpic++ $^ -o $@ $(PIN_LD_FLAGS)
+	$(CXX) $^ -o $@ $(PIN_LD_FLAGS)
 
 clean:
 	rm -f dep/*.d dep/Graphite/*.d obj/*.o obj/Graphite/*.o bin/* 
